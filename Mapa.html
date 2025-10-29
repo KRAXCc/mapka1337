@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mapka</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+html,body,#map{height:100%;margin:0; background:black;}
+#controls{position:absolute;top:1%;left:5%;z-index:1000;}
+button::before,
+button::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+button::before {
+  content: "";
+  background: #000000;
+  width: 120%;
+  left: -10%;
+  transform: skew(30deg);
+  transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+}
+
+button:hover::before {
+  transform: translate3d(100%, 0, 0);
+}
+
+button span {
+  color: white;
+  position: relative;
+  z-index: 10;
+  transition: color 0.4s;
+  padding: 0.8em 1.2em 0.8em 1.05em;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+button {width: 100px; height: 30px;position: relative; border-radius: 30px; border: none;  font-family: inherit; font-weight: 500; font-size: 18px; padding: 1px; background: linear-gradient(to right, #546950, #568875); overflow: hidden;}
+</style>
+</head>
+<body>
+<div id="controls">
+<button id="saveBtn">
+<span>Zapisz</span>
+</button>
+<button id="loadBtn">
+<span>Wczytaj</span>
+</button>
+<input type="file" id="fileInput" style="display:none"/>
+</div>
+<div id="map"></div>
+<script>
+const map=L.map('map',{crs:L.CRS.Simple,minZoom:-2,maxZoom:2});
+const img='Mapa/gta_sa_map.jpg',w=2048,h=2048,b=[[0,0],[h,w]];
+L.imageOverlay(img,b).addTo(map);
+map.fitBounds(b);
+let points=[];
+const markersGroup=L.layerGroup().addTo(map);
+
+function addMarker(lat,lng){
+    const m=L.marker([lat,lng], {draggable:true}).addTo(markersGroup);
+    points.push({lat,lng,marker:m});
+    m.on('click',()=>{
+        if(confirm('Usunąć ten punkt?')){
+            markersGroup.removeLayer(m);
+            points = points.filter(p => p.marker !== m);
+        }
+    });
+}
+
+map.on('click',e=>addMarker(e.latlng.lat,e.latlng.lng));
+
+// Zapis do pliku
+document.getElementById('saveBtn').onclick=()=>{
+    const dataStr = JSON.stringify(points.map(p=>({lat:p.lat,lng:p.lng}))); // bez referencji do marker
+    const blob = new Blob([dataStr], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'punkty.json';
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+// Wczytywanie z pliku
+const fileInput=document.getElementById('fileInput');
+document.getElementById('loadBtn').onclick=()=>fileInput.click();
+fileInput.addEventListener('change',e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+        try{
+            points = JSON.parse(reader.result);
+            markersGroup.clearLayers();
+            points.forEach(p=>addMarker(p.lat,p.lng));
+        }catch(err){alert('Błąd przy wczytywaniu pliku');}
+    };
+    reader.readAsText(file);
+});
+</script>
+</body>
+</html>
