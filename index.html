@@ -1,109 +1,280 @@
 <!doctype html>
-<html>
+<html lang="pl">
 <head>
 <meta charset="utf-8">
-<title>Mapka</title>
+<title>123332123435236523445445</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-html,body,#map{height:100%;margin:0; background: #738aaf;}
-#controls{position:absolute;top:1%;left:5%;z-index:1000;}
-button::before,
-button::after {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+html,body,#map {
+  height:100%;
+  margin:0;
+  background:#738aaf;
+  overflow:hidden;
 }
 
-button::before {
-  content: "";
-  background: #000000;
-  width: 120%;
-  left: -10%;
-  transform: skew(30deg);
-  transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+#controls {
+  position:absolute;
+  top:1%;
+  left:5%;
+  z-index:1000;
 }
 
-button:hover::before {
-  transform: translate3d(100%, 0, 0);
+/* === PRZYCISKI === */
+button {
+  width:160px;
+  height:55px;
+  position:relative;
+  border-radius:30px;
+  border:2px solid rgba(255,255,255,0.25);
+  font-family:'Verdana',sans-serif;
+  font-weight:500;
+  font-size:24px;
+  color:rgba(255,255,255,0.85);
+  background:transparent;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 0 15px rgba(0,0,0,0.7);
+  transition:all .5s ease;
+  overflow:hidden;
+}
+button::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  border-radius:35px;
+  background:radial-gradient(circle at top left,rgba(0,140,255,.25),transparent 60%);
+  filter:blur(8px);
+  opacity:0;
+  transition:opacity .5s ease;
+  z-index:0;
+}
+button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:30px;
+  padding:2px;
+  background:linear-gradient(120deg,rgba(0,140,255,.6),rgba(255,255,255,.15));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+  z-index:1;
+}
+button span{
+  position:relative;
+  z-index:2;
+  display:inline-block;
+  background:linear-gradient(90deg,rgba(255,255,255,.8),rgba(180,220,255,1),rgba(255,255,255,.8));
+  background-size:200%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  transition:background-position .8s ease;
+}
+button:hover span{background-position:100%;}
+button:hover{
+  transform:scale(1.07);
+  border-color:rgba(0,140,255,.7);
+  color:#fff;
+  box-shadow:0 0 25px rgba(0,0,0,.9),0 0 10px rgba(0,140,255,.35);
+  cursor:pointer;
+}
+button:hover::before{opacity:1;}
+button:active{
+  transform:scale(1.02);
+  box-shadow:0 0 20px rgba(0,0,0,.85),0 0 8px rgba(0,140,255,.25);
+  transition:.1s ease;
 }
 
-button span {
-  color: white;
-  position: relative;
-  z-index: 10;
-  transition: color 0.4s;
-  padding: 0.8em 1.2em 0.8em 1.05em;
+/* === KONTROLKI LEAFLET === */
+.leaflet-control-zoom a {
+  background:rgba(255,255,255,0.08);
+  border:2px solid rgba(255,255,255,0.25);
+  color:rgba(255,255,255,0.95);
+  font-weight:bold;
+  text-shadow:0 0 5px rgba(0,0,0,0.8);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 0 10px rgba(0,0,0,0.6);
+  transition:all .3s ease;
+  border-radius:12px;
+  width:32px;
+  height:32px;
+  font-size:22px;
+  line-height:28px;
+  text-align:center;
+}
+.leaflet-control-zoom a:hover {
+  transform:scale(1.15);
+  border-color:rgba(0,140,255,.7);
+  box-shadow:0 0 18px rgba(0,140,255,.4);
+  background:rgba(255,255,255,0.15);
+}
+.leaflet-control-zoom a:active {
+  transform:scale(1.05);
 }
 
-button:active {
-  transform: scale(0.95);
+.leaflet-control-attribution {
+  background:rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.7);
+  backdrop-filter:blur(8px);
+  border-radius:10px;
+  padding:2px 8px;
+  font-size:11px;
+  transition:all .4s ease;
 }
-button {width: 100px; height: 30px;position: relative; border-radius: 30px; border: none;  font-family: inherit; font-weight: 500; font-size: 18px; padding: 1px; background: linear-gradient(to right, #546950, #568875); overflow: hidden;}
+.leaflet-control-attribution:hover {
+  background:rgba(255,255,255,0.2);
+  color:#fff;
+}
+
+/* === POPUPY === */
+.leaflet-popup-content-wrapper {
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.3);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  color:#fff;
+  font-family:'Verdana',sans-serif;
+  font-size:16px;
+  text-align:center;
+  border-radius:16px;
+  box-shadow:0 0 20px rgba(0,0,0,0.7);
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.leaflet-popup-content-wrapper:hover {
+  transform:scale(1.03);
+  box-shadow:0 0 25px rgba(0,140,255,0.4);
+}
+.leaflet-popup-tip {
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+/* === MARKERY GLASS === */
+.glass-marker {
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  border:2px solid rgba(255,255,255,0.35);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:
+    0 0 10px rgba(0,0,0,0.6),
+    0 0 12px rgba(0,140,255,0.4);
+  transition:all 0.25s ease;
+}
+.glass-marker:hover {
+  transform:scale(1.25);
+  box-shadow:
+    0 0 20px rgba(0,140,255,0.6),
+    0 0 30px rgba(0,140,255,0.3);
+}
 </style>
 </head>
 <body>
 <div id="controls">
-<button id="saveBtn">
-<span>Zapisz</span>
-</button>
-<button id="loadBtn">
-<span>Wczytaj</span>
-</button>
-<input type="file" id="fileInput" style="display:none"/>
+  <button id="saveBtn"><span>Zapisz</span></button>
+  <button id="loadBtn"><span>Wczytaj</span></button>
+  <input type="file" id="fileInput" style="display:none"/>
 </div>
 <div id="map"></div>
-<script>
-const map=L.map('map',{crs:L.CRS.Simple,minZoom:-2,maxZoom:2});
-const img='Mapa/gta_sa_map.jpg',w=2048,h=2048,b=[[0,0],[h,w]];
-L.imageOverlay(img,b).addTo(map);
-map.fitBounds(b);
-let points=[];
-const markersGroup=L.layerGroup().addTo(map);
 
-function addMarker(lat,lng){
-    const m=L.marker([lat,lng], {draggable:true}).addTo(markersGroup);
-    points.push({lat,lng,marker:m});
-    m.on('click',()=>{
-        if(confirm('Usunąć ten punkt?')){
-            markersGroup.removeLayer(m);
-            points = points.filter(p => p.marker !== m);
-        }
-    });
+<script>
+const map = L.map('map', {
+  crs: L.CRS.Simple,
+  minZoom: -2,
+  maxZoom: 2,
+  zoomAnimation: true,
+  zoomSnap: 0.1,
+  zoomDelta: 0.25,
+  zoomAnimationThreshold: 2,
+  inertia: true,
+  inertiaDeceleration: 2500,
+  fadeAnimation: true,
+  markerZoomAnimation: true
+});
+
+const img = 'Mapa/gta_sa_map.jpg';
+const w = 2048, h = 2048;
+const bounds = [[0, 0], [h, w]];
+L.imageOverlay(img, bounds).addTo(map);
+map.fitBounds(bounds);
+
+let points = [];
+const markersGroup = L.layerGroup().addTo(map);
+
+function updatePopups() {
+  points.forEach((p, i) => {
+    p.marker.bindPopup(`Punkt ${i + 1} / ${points.length}`);
+  });
 }
 
-map.on('click',e=>addMarker(e.latlng.lat,e.latlng.lng));
+function createGlassIcon() {
+  return L.divIcon({
+    className: 'glass-marker',
+    iconSize: [24, 24],
+    popupAnchor: [0, -10]
+  });
+}
 
-// Zapis do pliku
-document.getElementById('saveBtn').onclick=()=>{
-    const dataStr = JSON.stringify(points.map(p=>({lat:p.lat,lng:p.lng}))); // bez referencji do marker
-    const blob = new Blob([dataStr], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'punkty.json';
-    a.click();
-    URL.revokeObjectURL(url);
+function addMarker(lat, lng) {
+  const m = L.marker([lat, lng], {
+    draggable: true,
+    icon: createGlassIcon()
+  }).addTo(markersGroup);
+
+  points.push({ lat, lng, marker: m });
+  updatePopups();
+
+  m.on('click', () => m.openPopup());
+  m.on('contextmenu', () => {
+    if (confirm('Usunąć ten punkt?')) {
+      markersGroup.removeLayer(m);
+      points = points.filter(p => p.marker !== m);
+      updatePopups();
+    }
+  });
+}
+
+map.on('click', e => addMarker(e.latlng.lat, e.latlng.lng));
+
+// === ZAPIS ===
+document.getElementById('saveBtn').onclick = () => {
+  const dataStr = JSON.stringify(points.map(p => ({ lat: p.lat, lng: p.lng })));
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'punkty.json';
+  a.click();
+  URL.revokeObjectURL(url);
 };
 
-// Wczytywanie z pliku
-const fileInput=document.getElementById('fileInput');
-document.getElementById('loadBtn').onclick=()=>fileInput.click();
-fileInput.addEventListener('change',e=>{
-    const file=e.target.files[0];
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=()=>{
-        try{
-            points = JSON.parse(reader.result);
-            markersGroup.clearLayers();
-            points.forEach(p=>addMarker(p.lat,p.lng));
-        }catch(err){alert('Błąd przy wczytywaniu pliku');}
-    };
-    reader.readAsText(file);
+// === WCZYTANIE ===
+const fileInput = document.getElementById('fileInput');
+document.getElementById('loadBtn').onclick = () => fileInput.click();
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      points = JSON.parse(reader.result);
+      markersGroup.clearLayers();
+      points.forEach(p => {
+        const m = L.marker([p.lat, p.lng], { draggable: true, icon: createGlassIcon() }).addTo(markersGroup);
+        p.marker = m;
+      });
+      updatePopups();
+    } catch (err) {
+      alert('Błąd przy wczytywaniu pliku');
+    }
+  };
+  reader.readAsText(file);
 });
 </script>
 </body>
